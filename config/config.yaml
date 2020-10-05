@@ -1,0 +1,2 @@
+subscriber_channel : "SENSOR_IMU"
+publisher_topic : "/imu/data"
