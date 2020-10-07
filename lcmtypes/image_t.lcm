@@ -1,0 +1,25 @@
+// Describes an image
+//
+// This type should be kept compatible with camlcm.image_t, as defined
+// in camunits-extra
+
+struct image_t
+{
+    // microseconds since the epoch
+    int64_t  utime;
+
+    int32_t  width; //640 default
+    int32_t  height; //480 default
+    int32_t  row_stride;
+    //int32_t  pixelformat; //png default
+
+    int32_t  pixelformat;
+
+    int32_t  size;
+    byte     data[size];
+
+    const int32_t PIXEL_FORMAT_RGB              = 859981650;
+    const int32_t PIXEL_FORMAT_BGR              = 861030210;
+    const int32_t PIXEL_FORMAT_MJPEG            = 1196444237;
+    const int32_t PIXEL_FORMAT_GRAY             = 1497715271;
+}
