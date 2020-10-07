@@ -1,2 +1,4 @@
-subscriber_channel : "SENSOR_IMU"
-publisher_topic : "/imu/data"
+image_subscriber_channel : "IMAGE"
+imu_subscriber_channel : "MBOT_IMU"
+image_publisher_topic : "/cam0/image_raw"
+imu_publisher_topic : "/imu0"

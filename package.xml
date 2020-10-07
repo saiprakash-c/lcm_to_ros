@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>imu_lcm_to_ros</name>
+  <name>lcm_to_ros</name>
   <version>0.1.0</version>
   <description>Converts imu messages in lcm to ros</description>
   <maintainer email="saip@umich.edu">Sai Prakash Reddy C</maintainer>

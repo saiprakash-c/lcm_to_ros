@@ -1,4 +1,5 @@
 #include "helper.h"
+#include <opencv2/opencv.hpp>
 // #include <boost/iostreams/device/array.hpp>
 // #include <boost/iostreams/device/back_inserter.hpp>
 // #include <boost/iostreams/stream.hpp>
@@ -32,17 +33,10 @@ Quaternion ToQuaternion(double yaw, double pitch, double roll) // yaw (Z), pitch
 }
 
 
-void handleData(const lcm_recv_buf_t *rbuf, const char * channel, 
-         const vulcan_lcm_imu_t * msg, void * user)
-{
-    helper* h=(helper*)user;
-    sensor_msgs::Imu imuROS;
-    h->convertLCMToROS(msg,imuROS);
-   
-}
+
 
 // template <class Type, class Consumer>
-// void distribute_serialized(const ::lcm::ReceiveBuffer* rbuf, const std::string& channel, const vulcan::serialized_t* data, Consumer* consumer)
+// void distribute_serialized(const ::lcm::ReceiveBuffer* rbuf, const std::std::string& channel, const vulcan::serialized_t* data, Consumer* consumer)
 // {
 //     try
 //     {
@@ -68,42 +62,79 @@ lcmInstance_(l),rosNh_(nh)
     {
         std::cout << "Parameters could not be loaded!" << std::endl;
     }
-    lcm_t* lcmPtr = lcmInstance_->getUnderlyingLCM();
-    vulcan_lcm_imu_t_subscribe(lcmPtr,subscriberTopic_.c_str(),&handleData, this);
-    imuPublisher_ = rosNh_->advertise<sensor_msgs::Imu>(publisherTopic_,1); // buffer up 1 message
+    lcmInstance_->subscribe(imuSubscriberChannel_,&helper::handleIMU,this);
+    lcmInstance_->subscribe(imageSubscriberChannel_,&helper::handleImage,this);
+    imuPublisher_ = rosNh_->advertise<sensor_msgs::Imu>(imuPublisherTopic_,1); // buffer up 1 message
+    imagePublisher_ = rosNh_->advertise<sensor_msgs::Image>(imagePublisherTopic_,1); // buffer up 1 message
     clockPublisher_ = rosNh_->advertise<rosgraph_msgs::Clock>("clock",1); // buffer up 1 message
 }
 
-
-
-void helper::convertLCMToROS(const vulcan_lcm_imu_t* imuLCM, sensor_msgs::Imu& imuROS)
+void helper::handleIMU(const lcm::ReceiveBuffer *rbuf, const std::string& channel, 
+         const mbot_imu_t* msg)
 {
-    int64_t tstamp=imuLCM->timestamp;// in microsecs
+    sensor_msgs::Imu imuROS;
+    convertIMULCMToROS(msg,imuROS);
+}
+
+void helper::handleImage(const lcm::ReceiveBuffer *rbuf, const std::string& channel, 
+         const image_t* msg)
+{
+    sensor_msgs::Image imageROS;
+    convertImageLCMToROS(msg,imageROS);
+}
+
+void helper::convertIMULCMToROS(const mbot_imu_t* imuLCM, sensor_msgs::Imu& imuROS)
+{
+    int64_t tstamp=imuLCM->utime;// in microsecs
     imuROS.header.stamp.sec=(uint32_t)(tstamp/1e6); // in secs
     double diff=(tstamp-imuROS.header.stamp.sec*1e6); // diff in microsecs
     imuROS.header.stamp.nsec=(uint32_t)diff*1e3; // in nanosecs
     imuROS.header.frame_id="imu_link";
-    Quaternion q=ToQuaternion(imuLCM->orientation[0],imuLCM->orientation[1],imuLCM->orientation[2]);
+    Quaternion q=ToQuaternion(imuLCM->tb_angles[1],imuLCM->tb_angles[0],imuLCM->tb_angles[2]);
     imuROS.orientation.x=q.x;
     imuROS.orientation.y=q.y;
     imuROS.orientation.z=q.z;
     imuROS.orientation.w=q.w;
-    imuROS.angular_velocity.x=imuLCM->rotational_vel[2];
-    imuROS.angular_velocity.y=imuLCM->rotational_vel[1];
-    imuROS.angular_velocity.z=imuLCM->rotational_vel[0];
-    imuROS.linear_acceleration.x=imuLCM->accel[2];
-    imuROS.linear_acceleration.y=imuLCM->accel[1];
-    imuROS.linear_acceleration.z=imuLCM->accel[0];
+    imuROS.angular_velocity.x=imuLCM->gyro[1];
+    imuROS.angular_velocity.y=imuLCM->gyro[0];
+    imuROS.angular_velocity.z=imuLCM->gyro[2];
+    imuROS.linear_acceleration.x=imuLCM->accel[1];  
+    imuROS.linear_acceleration.y=imuLCM->accel[0];
+    imuROS.linear_acceleration.z=imuLCM->accel[2];
     imuPublisher_.publish(imuROS);
+    std::cout << "published imu as ros message" << '\n';
     // rosgraph_msgs::Clock clock;
     // ros::Time rosTimeInSec(imuROS.header.stamp.sec);
     // clock.clock=rosTimeInSec;
     // clockPublisher_.publish(clock);
 }
 
+void helper::convertImageLCMToROS(const image_t* imageLCM, sensor_msgs::Image& imageROS)
+{
+    int64_t tstamp=imageLCM->utime;// in microsecs
+    imageROS.header.stamp.sec=(uint32_t)(tstamp/1e6); // in secs
+    double diff=(tstamp-imageROS.header.stamp.sec*1e6); // diff in microsecs
+    imageROS.header.stamp.nsec=(uint32_t)diff*1e3; // in nanosecs
+    imageROS.header.frame_id="camera_link";
+    imageROS.width=imageLCM->width;
+    imageROS.height=imageLCM->height;
+    imageROS.is_bigendian=0;
+    cv::Mat imgDecode;
+    imgDecode = cv::imdecode(imageLCM->data, cv::IMREAD_COLOR);
+    imageROS.encoding="bgr8";
+    imageROS.step=imgDecode.step;
+    // https://stackoverflow.com/questions/26681713/convert-mat-to-array-vector-in-opencv
+    imageROS.data.assign(imgDecode.data,imgDecode.data+imgDecode.total()*imgDecode.channels());
+    imagePublisher_.publish(imageROS);
+    std::cout << "published image as ros message" << '\n';
+}
+
+
 bool helper::readParameters()
 {
-    if(!rosNh_->getParam("subscriber_channel",subscriberTopic_)) return false;
-    if(!rosNh_->getParam("publisher_topic",publisherTopic_)) return false;
+    if(!rosNh_->getParam("imu_subscriber_channel",imuSubscriberChannel_)) return false;
+    if(!rosNh_->getParam("imu_publisher_topic",imuPublisherTopic_)) return false;
+    if(!rosNh_->getParam("image_subscriber_channel",imageSubscriberChannel_)) return false;
+    if(!rosNh_->getParam("image_publisher_topic",imagePublisherTopic_)) return false;
     return true;
 }
