@@ -10,8 +10,9 @@ Before you begin, ensure you have met the following requirements:
 * You have a `Linux` machine. 
 * [lcm 1.4.0](https://github.com/lcm-proj/lcm)
 * [ros-melodic](http://wiki.ros.org/melodic/Installation/Ubuntu)
+  - catkin is included by default when ros is installed 
 * [OpenCV]
-** catkin is included by default when ros is installed 
+
 
 ## Installing
 
