@@ -1,4 +1,4 @@
-# lcm-to-ros
+# lcm_to_ros
 
 This program converts LCM messgaes to ROS messages. Currently, it supports only image and imu messages. 
 
@@ -21,19 +21,19 @@ To install the project, follow these steps:
 ```
 cd ~/catkin_ws/src # go to src directory of your catkin work space
 git clone https://github.com/saiprakash-c/lcm-to-ros.git
-cd ~/catkin_ws # go to your catkin workspace
-catkin build lcm-to-ros.launch
+cd ../ # go to your catkin workspace
+catkin build lcm_to_ros.launch
 source devel/setup.bash
 ```
 ## Usage
 
-To use lcm-to-ros to convert a lcm log file to a ros bag file, follow these steps:
+To use lcm_to_ros to convert a lcm log file to a ros bag file, follow these steps:
 
 1. Set the lcm channel names and ros topic names in config/config.yaml
-2. Launch the lcm-to-ros.launch file as follows
+2. Launch the lcm_to_ros.launch file as follows
 ```
 cd ~/catkin_ws # go to your catkin workspace
-roslaunch lcm-to-ros lcm-to-ros.launch 
+roslaunch lcm_to_ros lcm_to_ros.launch 
 ```
 3. Record ros messages to a bag file 
 ```
