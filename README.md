@@ -45,11 +45,12 @@ For ex. if you want to capture only imu messages, use
 rosbag record -O <ros_bag_file_name> /imu0
 ```
 
-
 4. Run your lcm log file
 ```
-lcm-logplayer-gui <lcm_log_file>
+lcm-logplayer-gui -p <lcm_log_file>
 ```
+
+5. Play your log file by pressing the play button when you want to record. 
 
 ## Contact
 
