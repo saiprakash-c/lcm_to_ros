@@ -37,8 +37,15 @@ roslaunch lcm_to_ros lcm_to_ros.launch
 ```
 3. Record ros messages to a bag file 
 ```
-rosbag record -O <ros_bag_file_name>
+rosbag record -O <ros_bag_file_name> <topic_names> 
 ```
+<topic_names> are the names of the topics you want to record.
+For ex. if you want to capture only imu messages, use 
+```
+rosbag record -O <ros_bag_file_name> /imu0
+```
+
+
 4. Run your lcm log file
 ```
 lcm-logplayer-gui <lcm_log_file>
