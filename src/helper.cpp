@@ -95,11 +95,11 @@ void helper::convertIMULCMToROS(const mbot_imu_t* imuLCM, sensor_msgs::Imu& imuR
     imuROS.orientation.y=q.y;
     imuROS.orientation.z=q.z;
     imuROS.orientation.w=q.w;
-    imuROS.angular_velocity.x=imuLCM->gyro[1];
-    imuROS.angular_velocity.y=imuLCM->gyro[0];
+    imuROS.angular_velocity.x=imuLCM->gyro[0];
+    imuROS.angular_velocity.y=imuLCM->gyro[1];
     imuROS.angular_velocity.z=imuLCM->gyro[2];
-    imuROS.linear_acceleration.x=imuLCM->accel[1];  
-    imuROS.linear_acceleration.y=imuLCM->accel[0];
+    imuROS.linear_acceleration.x=imuLCM->accel[0];  
+    imuROS.linear_acceleration.y=imuLCM->accel[1];
     imuROS.linear_acceleration.z=imuLCM->accel[2];
     imuPublisher_.publish(imuROS);
     std::cout << "published imu as ros message" << '\n';
