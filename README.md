@@ -20,7 +20,7 @@ To install the project, follow these steps:
 
 ```
 cd ~/catkin_ws/src # go to src directory of your catkin work space
-git clone https://github.com/saiprakash-c/lcm-to-ros.git
+git clone https://github.com/saiprakash-c/lcm_to_ros.git
 cd ../ # go to your catkin workspace
 catkin build lcm_to_ros.launch
 source devel/setup.bash
