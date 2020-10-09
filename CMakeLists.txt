@@ -15,13 +15,12 @@ find_package(OpenCV)
 catkin_package(
   INCLUDE_DIRS
     include
-    thirdparty
 #  LIBRARIES
   CATKIN_DEPENDS 
     roscpp
     sensor_msgs
  DEPENDS 
-    Boost
+    OpenCV
 )
 # include directories 
 include_directories(include lcmtypes src ${catkin_INCLUDE_DIRS})
@@ -37,5 +36,5 @@ endforeach()
 set(DEPENDENCIES ${catkin_LIBRARIES} ${OpenCV_LIBS} lcm)
 
 # install executables
-add_executable(lcm_to_ros src/lcm_to_ros_node.cpp src/helper.cpp lcmtypes/vulcan_lcm_imu_t.c)
+add_executable(lcm_to_ros src/lcm_to_ros_node.cpp src/helper.cpp)
 target_link_libraries(lcm_to_ros ${DEPENDENCIES})
